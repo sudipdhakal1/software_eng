@@ -1,16 +1,20 @@
 # Git Tutorial Basics
 
-Git is a **distributed version control system**. Instead of relying on a single central server, each developer **clones** a full copy of the repository (including history) to their machine. The original can live on a self-hosted server or on a service like **GitHub**.
+Git is a **distributed version control system**. Instead of relying on a single central server, each developer **clones** a full copy of the repository (including history) to their local machine.
+The original repository can live on a self-hosted server or a hosting service like **GitHub**.
 
 ---
 
 ## Step 0: Create a GitHub Account
-Sign up at: <https://github.com/>
+
+Sign up at: [https://github.com/](https://github.com/)
 
 ---
 
 ## Step 1: Make sure Git is installed
+
 **macOS / Linux / Windows (Git Bash / PowerShell):**
+
 ```bash
 git --version
 ```
@@ -18,10 +22,12 @@ git --version
 ---
 
 ## Step 2: Tell Git who you are
+
 Every commit records your name and email.
+
 ```bash
 git config --global user.name  "Your_UserName"
-git config --global user.email "abc@gmail.com"
+git config --global user.email "you@example.com"
 git config --global init.defaultBranch main
 git config --global --list   # verify settings
 ```
@@ -29,23 +35,27 @@ git config --global --list   # verify settings
 ---
 
 ## Step 3: Create a repository (GitHub → New)
-Follow GitHub’s guide:  
-<https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository>
 
-**Tip:** Create it **empty** (no README/license) to avoid an immediate merge conflict on first push.
+Follow GitHub’s guide:
+[https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
+
+**Tip:** Create it **empty** (no README/license) to avoid merge conflicts on your first push.
 
 ---
 
 ## Step 4: Initialize a local repo and add files
+
 Navigate to the folder you want under Git, then initialize:
+
 ```bash
 cd ~/Desktop/your_directory
-git init                     # initialize empty Git repo
-touch README.md              # create a README file
+git init
+touch README.md
 echo "My first repo" >> README.md
 ```
 
 Stage and commit:
+
 ```bash
 git add .
 git commit -m "First commit"
@@ -53,49 +63,99 @@ git commit -m "First commit"
 
 ---
 
-## Step 5: Connect the local repo to GitHub (remote)
+## Step 5: Connect your local repo to GitHub
+
+> ⚠️ **Important:**
+> GitHub **no longer supports password authentication** for Git operations.
+> You must use either a **Personal Access Token (PAT)** or **SSH key**.
+
+---
 
 ### Option 1 — HTTPS with a Personal Access Token (PAT)
-1) Generate a token: **GitHub** → Settings → Developer settings → **Personal access tokens (classic)** → *Generate new token* → choose scopes (usually `repo`).  
-2) **Set the remote** (replace placeholders with your info):
-```bash
-git remote add origin https://github.com/<your-username>/<repo-name>.git
-```
-If you want to bake credentials into the URL (quick demo only; not recommended for shared machines):
-```bash
-git remote set-url origin https://<your-username>:<your-token>@github.com/<your-username>/<repo-name>.git
-```
-Then push:
-```bash
-git branch -M main
-git push -u origin main
-```
 
-### Option 2 — SSH (recommended once set up)
-Generate a key, add it to GitHub, and test (docs: <https://docs.github.com/en/authentication/connecting-to-github-with-ssh/>):
+1. **Generate a Personal Access Token (PAT):**
+
+   * Go to: [https://github.com/settings/tokens](https://github.com/settings/tokens)
+   * Choose **Fine-grained token** (recommended) or **Classic token**
+   * Scope: allow **repo** (read and write)
+
+2. **Set the remote:**
+
+   ```bash
+   git remote add origin https://github.com/<your-username>/<repo-name>.git
+   ```
+
+3. **Push your local commits:**
+
+   ```bash
+   git branch -M main
+   git push -u origin main
+   ```
+
+4. When prompted:
+
+   * **Username:** your GitHub username (e.g., `sudipdhakal1`)
+   * **Password:** your **PAT** (paste the token here; you won’t see it on screen)
+
+5. (Optional) To store your token securely on macOS:
+
+   ```bash
+   git config --global credential.helper osxkeychain
+   ```
+
+> 🔒 **Never paste your token directly into commands or share it.**
+> If you ever expose your token, **revoke it immediately** in GitHub settings and generate a new one.
+
+---
+
+### Option 2 — SSH (recommended for long-term use)
+
+Generate an SSH key and add it to GitHub:
+
 ```bash
 ssh-keygen -t ed25519 -C "you@example.com"
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
-# copy the public key to GitHub → Settings → SSH and GPG keys
-# macOS:   pbcopy < ~/.ssh/id_ed25519.pub
-# Windows: clip < ~/.ssh/id_ed25519.pub
-# Linux:   xclip -sel clip < ~/.ssh/id_ed25519.pub
+```
 
-ssh -T git@github.com   # should say "Hi <username>!"
+Copy the public key to GitHub:
+
+```bash
+pbcopy < ~/.ssh/id_ed25519.pub  # macOS
+# or clip < ~/.ssh/id_ed25519.pub (Windows)
+```
+
+Then set your remote and push:
+
+```bash
 git remote add origin git@github.com:<your-username>/<repo-name>.git
 git branch -M main
 git push -u origin main
 ```
 
+Test connection:
+
+```bash
+ssh -T git@github.com
+```
+
+If successful, you’ll see:
+
+```
+Hi <username>! You've successfully authenticated.
+```
+
 ---
 
 ## Change the remote URL later (if needed)
+
 ```bash
 git remote -v                     # verify current
 git remote set-url origin <new-url>
 ```
+
 Examples:
+
 ```bash
 # switch to HTTPS
 git remote set-url origin https://github.com/<your-username>/<repo-name>.git
@@ -106,11 +166,12 @@ git remote set-url origin git@github.com:<your-username>/<repo-name>.git
 
 ---
 
-## Clone an existing GitHub repo to your computer
-1) On GitHub: click **Code** → copy the URL (HTTPS or SSH).  
-2) In your terminal:
+## Clone an existing GitHub repo
+
+On GitHub, click **Code** → copy the HTTPS or SSH URL, then:
+
 ```bash
-cd /path/to/your/directory
+cd /path/to/your/folder
 git clone https://github.com/<username>/<repository-name>.git
 cd <repository-name>
 ```
@@ -118,45 +179,46 @@ cd <repository-name>
 ---
 
 ## Everyday workflow (edit → stage → commit → push)
-```bash
-# edit files with your editor
 
-git status                      # see changes
-git add -A                      # stage all
+```bash
+git status
+git add -A
 git commit -m "Describe what changed"
-git push                        # upload commits to GitHub
+git push
 ```
 
 ---
 
 ## Collaboration Basics
-Invite collaborators, use branches, and merge.
 
-**Invite a collaborator (on GitHub):**
-- Repo → **Settings** → **Collaborators** → **Add people**.
+**Invite a collaborator:**
 
-**Create a branch and work:**
+* Go to your repo → **Settings → Collaborators → Add people**
+
+**Work on a branch:**
+
 ```bash
-git checkout -b feature/some-change
-# edit files
-git add -A
-git commit -m "Implement some change"
-git push -u origin feature/some-change
+git checkout -b feature/update-readme
+git add .
+git commit -m "Updated README with secure token instructions"
+git push -u origin feature/update-readme
 ```
-Open a **Pull Request** on GitHub to merge into `main`.
 
-**Merge (maintainer):**
-- Review PR → **Merge pull request** → **Confirm**.
+Then open a **Pull Request** on GitHub to merge changes into `main`.
 
 ---
 
 ## Helpful tips
-If you created a README on GitHub **and** locally before your first push:
+
+If your local and remote branches differ (e.g., GitHub created a README online):
+
 ```bash
 git pull --rebase origin main
 git push
 ```
-Line endings (cross-platform teams):
+
+Handle line endings:
+
 ```bash
 # Windows
 git config --global core.autocrlf true
@@ -167,17 +229,22 @@ git config --global core.autocrlf input
 
 ---
 
-### (Handling merge conflict markers)
-If you ever see lines like these after a merge:
+## Handling Merge Conflicts
+
+If you see conflict markers like:
+
 ```
 <<<<<<< HEAD
 ...
 =======
 ...
->>>>>>> 507cc1aa75ab694bc2aa9eabf074e17a2f58124d
+>>>>>>> some-commit-hash
 ```
-they indicate a **merge conflict**. Edit the file to keep the correct content, then:
+
+Edit to keep the correct content, then:
+
 ```bash
 git add <file>
 git commit -m "Resolve merge conflict"
 ```
+
